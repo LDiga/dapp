@@ -12,10 +12,10 @@ import (
 	"time"
 
 	git_util "github.com/flant/dapp/pkg/git"
-	"github.com/flant/go-git/plumbing/filemode"
-	"github.com/flant/go-git/plumbing/object"
-	"github.com/flant/go-git/storage"
 	uuid "github.com/satori/go.uuid"
+	"gopkg.in/src-d/go-git.v4/plumbing/filemode"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	"gopkg.in/src-d/go-git.v4/storage"
 )
 
 type Archive struct {
@@ -115,7 +115,7 @@ func (a *Archive) writeEntriesToArchive(tw *tar.Writer, treeWalker *object.TreeW
 		// NOTICE: Current GetBlob implementation indirectly reading file content.
 		// NOTICE: Which cause big memory usage on big repos.
 		// NOTICE: Also this is a execution speed bottleneck for big repos.
-		// NOTICE: See go-git issue https://github.com/src-d/go-git/issues/832.
+		// NOTICE: See go-git issue https://gopkg.in/src-d/go-git.v4/issues/832.
 		blob, err := object.GetBlob(a.Repo.Storer, entry.Hash)
 		if err != nil {
 			return err

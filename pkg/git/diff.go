@@ -20,11 +20,11 @@ func Diff(out io.Writer, repoPath string, opts DiffOptions) error {
 
 	submoduleOpt := "--submodule=log"
 	if opts.WithSubmodules {
-		submoduleOpt = "--submodule=diff"
-
-		if !submoduleVersionConstraintObj.Check(gitVersionObj) {
-			return fmt.Errorf("To use submodules install git >= %s! Your git version is %s.", MinGitVersionWithSubmodulesConstraint, GitVersion)
+		err := checkSubmoduleConstraint()
+		if err != nil {
+			return err
 		}
+		submoduleOpt = "--submodule=diff"
 	}
 
 	// TODO: Maybe use git-dir + bare always.

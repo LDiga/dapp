@@ -6,11 +6,11 @@ import (
 	"os"
 	"strings"
 
-	git_util "github.com/flant/dapp/pkg/git" // Rename to "git" when go-git deleted
-	git "github.com/flant/go-git"
-	"github.com/flant/go-git/plumbing"
-	"github.com/flant/go-git/plumbing/object"
-	"github.com/flant/go-git/storage"
+	git_util "github.com/flant/dapp/pkg/git"
+	go_git "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	"gopkg.in/src-d/go-git.v4/storage"
 )
 
 type Base struct {
@@ -44,7 +44,7 @@ func (repo *Base) getHeadBranchNameForRepo(repoPath string) (string, error) {
 func (repo *Base) getReferenceForRepo(repoPath string) (*plumbing.Reference, error) {
 	var err error
 
-	repository, err := git.PlainOpen(repoPath)
+	repository, err := go_git.PlainOpen(repoPath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot open repo: %s", err)
 	}
@@ -106,7 +106,7 @@ func (repo *Base) ArchiveChecksum(ArchiveOptions) (string, error) {
 }
 
 func (repo *Base) createPatch(repoPath string, opts PatchOptions) (Patch, error) {
-	repository, err := git.PlainOpen(repoPath)
+	repository, err := go_git.PlainOpen(repoPath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot open repo: %s", err)
 	}
@@ -152,7 +152,7 @@ func (repo *Base) createPatch(repoPath string, opts PatchOptions) (Patch, error)
 }
 
 func (repo *Base) createArchiveObject(repoPath string, opts ArchiveOptions) (*Archive, error) {
-	repository, err := git.PlainOpen(repoPath)
+	repository, err := go_git.PlainOpen(repoPath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot open repo: %s", err)
 	}

@@ -81,3 +81,10 @@ func getGitCliVersion() (string, error) {
 
 	return rawVersion, nil
 }
+
+func checkSubmoduleConstraint() error {
+	if !submoduleVersionConstraintObj.Check(gitVersionObj) {
+		return fmt.Errorf("To use submodules install git >= %s! Your git version is %s.", MinGitVersionWithSubmodulesConstraint, GitVersion)
+	}
+	return nil
+}
