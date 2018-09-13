@@ -2,7 +2,6 @@ package git_repo
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"time"
@@ -148,10 +147,6 @@ func (repo *Remote) Fetch() error {
 	})
 }
 
-func (repo *Remote) ArchiveType(opts ArchiveOptions) (ArchiveType, error) {
-	return repo.archiveType(repo.ClonePath, opts)
-}
-
 func (repo *Remote) HeadCommit() (string, error) {
 	branchName, err := repo.HeadBranchName()
 	if err != nil {
@@ -240,10 +235,6 @@ func (repo *Remote) CreatePatch(opts PatchOptions) (Patch, error) {
 	return repo.createPatch(repo.ClonePath, opts)
 }
 
-func (repo *Remote) IsAnyEntries(opts ArchiveOptions) (bool, error) {
-	return repo.isAnyEntries(repo.ClonePath, opts)
-}
-
-func (repo *Remote) CreateArchiveTar(output io.Writer, opts ArchiveOptions) error {
-	return repo.createArchiveTar(repo.ClonePath, output, opts)
+func (repo *Remote) CreateArchive(opts ArchiveOptions) (Archive, error) {
+	return repo.createArchive(repo.ClonePath, opts)
 }

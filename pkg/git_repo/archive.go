@@ -18,7 +18,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/storage"
 )
 
-type Archive struct {
+type ArchiveOld struct {
 	PathFilter git_util.PathFilter
 	Repo       struct {
 		Tree   *object.Tree
@@ -26,7 +26,7 @@ type Archive struct {
 	}
 }
 
-func (a *Archive) Type() (ArchiveType, error) {
+func (a *ArchiveOld) Type() (ArchiveType, error) {
 	treeWalker := object.NewTreeWalker(a.Repo.Tree, true, nil)
 
 	basePath := git_util.NormalizeAbsolutePath(a.PathFilter.BasePath)
@@ -70,7 +70,7 @@ func stopMemprofile() {
 	f.Close()
 }
 
-func (a *Archive) CreateTar(output io.Writer) error {
+func (a *ArchiveOld) CreateTar(output io.Writer) error {
 	// startMemprofile()
 	// defer stopMemprofile()
 
@@ -92,7 +92,7 @@ func (a *Archive) CreateTar(output io.Writer) error {
 	return nil
 }
 
-func (a *Archive) writeEntriesToArchive(tw *tar.Writer, treeWalker *object.TreeWalker) error {
+func (a *ArchiveOld) writeEntriesToArchive(tw *tar.Writer, treeWalker *object.TreeWalker) error {
 	now := time.Now()
 	chunkBuf := make([]byte, 16*1024*1024) // 16Mb chunk
 
@@ -184,7 +184,7 @@ func (a *Archive) writeEntriesToArchive(tw *tar.Writer, treeWalker *object.TreeW
 	return nil
 }
 
-func (a *Archive) IsAnyEntries() (bool, error) {
+func (a *ArchiveOld) IsAnyEntries() (bool, error) {
 	treeWalker := object.NewTreeWalker(a.Repo.Tree, true, nil)
 
 	for {

@@ -9,8 +9,6 @@ import (
 	git_util "github.com/flant/dapp/pkg/git"
 	go_git "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
-	"gopkg.in/src-d/go-git.v4/storage"
 )
 
 type Base struct {
@@ -50,15 +48,6 @@ func (repo *Base) getReferenceForRepo(repoPath string) (*plumbing.Reference, err
 	}
 
 	return repository.Head()
-}
-
-func (repo *Base) archiveType(repoPath string, opts ArchiveOptions) (ArchiveType, error) {
-	archive, err := repo.createArchiveObject(repoPath, opts)
-	if err != nil {
-		return "", err
-	}
-
-	return archive.Type()
 }
 
 func (repo *Base) String() string {
@@ -151,57 +140,36 @@ func (repo *Base) createPatch(repoPath string, opts PatchOptions) (Patch, error)
 	return patch, nil
 }
 
-func (repo *Base) createArchiveObject(repoPath string, opts ArchiveOptions) (*Archive, error) {
+func (repo *Base) createArchive(repoPath string, opts ArchiveOptions) (Archive, error) {
 	repository, err := go_git.PlainOpen(repoPath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot open repo: %s", err)
 	}
 
 	commitHash := plumbing.NewHash(opts.Commit)
-	commitObj, err := repository.CommitObject(commitHash)
+	_, err = repository.CommitObject(commitHash)
 	if err != nil {
 		return nil, fmt.Errorf("bad commit `%s`: %s", opts.Commit, err)
 	}
 
-	tree, err := commitObj.Tree()
+	archive := NewTmpArchiveFile()
+
+	fileFandler, err := os.OpenFile(archive.GetFilePath(), os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot open archive file: %s", err)
 	}
 
-	archive := &Archive{
+	err = git_util.Archive(fileFandler, repoPath, git_util.ArchiveOptions{
+		Commit: opts.Commit,
 		PathFilter: git_util.PathFilter{
 			BasePath:     opts.BasePath,
 			IncludePaths: opts.IncludePaths,
 			ExcludePaths: opts.ExcludePaths,
 		},
-		Repo: struct {
-			Tree   *object.Tree
-			Storer storage.Storer
-		}{tree, repository.Storer},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error creating archive for commit `%s`: %s", opts.Commit, err)
 	}
 
 	return archive, nil
-}
-
-func (repo *Base) isAnyEntries(repoPath string, opts ArchiveOptions) (bool, error) {
-	archiveObj, err := repo.createArchiveObject(repoPath, opts)
-	if err != nil {
-		return false, err
-	}
-
-	res, err := archiveObj.IsAnyEntries()
-	if err != nil {
-		return false, err
-	}
-
-	return res, nil
-}
-
-func (repo *Base) createArchiveTar(repoPath string, output io.Writer, opts ArchiveOptions) error {
-	archiveObj, err := repo.createArchiveObject(repoPath, opts)
-	if err != nil {
-		return err
-	}
-
-	return archiveObj.CreateTar(output)
 }
